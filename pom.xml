@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.0</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.movieplatform</groupId>
+    <artifactId>grpc-movie-platform</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>gRPC Movie Platform</name>
+    <description>Three-service gRPC movie platform proof of concept: Thymeleaf SSR web app with
+session auth and ADMIN-only catalog writes (movie-service), a gRPC votes store (user-service),
+and a stateless TMDb-backed recommendation aggregator (recommendation-service). Parent POM
+and module aggregator.</description>
+
+    <modules>
+        <module>proto-contract</module>
+        <module>user-service</module>
+        <module>movie-service</module>
+        <module>recommendation-service</module>
+    </modules>
+
+    <properties>
+        <java.version>25</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <springdoc.version>3.1.0</springdoc.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.movieplatform</groupId>
+                <artifactId>proto-contract</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>
