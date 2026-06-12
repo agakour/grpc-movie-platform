@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package movieplatform.recommendation;
+
+option java_multiple_files = true;
+
+service RecommendationService {
+  rpc GetRecommendations(RecommendationRequest) returns (stream Recommendation);
+}
+
+message RecommendationRequest {
+  repeated int64 tmdb_ids = 1;
+  int32 limit = 2;
+}
+
+message Recommendation {
+  int64 tmdb_id = 1;
+  string title = 2;
+  int32 year = 3;
+  string poster_path = 4;
+  string overview = 5;
+  double score = 6;
+}

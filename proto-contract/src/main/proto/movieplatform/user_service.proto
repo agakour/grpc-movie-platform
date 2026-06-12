@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package movieplatform.user;
+
+option java_multiple_files = true;
+
+service UserService {
+  rpc SetVote(SetVoteRequest) returns (SetVoteResponse);
+  rpc GetVote(GetVoteRequest) returns (GetVoteResponse);
+  rpc ListVotedMovieIds(ListVotedMovieIdsRequest) returns (ListVotedMovieIdsResponse);
+}
+
+message SetVoteRequest {
+  int64 user_id = 1;
+  int64 movie_id = 2;
+  bool liked = 3;
+}
+
+message SetVoteResponse {
+}
+
+message GetVoteRequest {
+  int64 user_id = 1;
+  int64 movie_id = 2;
+}
+
+message GetVoteResponse {
+  bool found = 1;
+  bool liked = 2;
+}
+
+message ListVotedMovieIdsRequest {
+  int64 user_id = 1;
+}
+
+message ListVotedMovieIdsResponse {
+  repeated Vote votes = 1;
+}
+
+message Vote {
+  int64 movie_id = 1;
+  bool liked = 2;
+}
