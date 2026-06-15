@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: user-service
+  main:
+    web-application-type: reactive
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/user-db
+    username: ${POSTGRES_USER:movie_platform}
+    password: ${POSTGRES_PASSWORD:change-me-postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  grpc:
+    server:
+      port: ${USER_SERVICE_GRPC_PORT:9091}
+
+server:
+  port: ${USER_SERVICE_PORT:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
