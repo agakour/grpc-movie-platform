@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: movie-service
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/movie-db
+    username: ${POSTGRES_USER:movie_platform}
+    password: ${POSTGRES_PASSWORD:change-me-postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  grpc:
+    client:
+      channel:
+        user-service:
+          target: ${USER_SERVICE_GRPC_ADDRESS:static://localhost:9091}
+        recommendation-service:
+          target: ${RECOMMENDATION_SERVICE_GRPC_ADDRESS:static://localhost:9093}
+
+server:
+  port: ${MOVIE_SERVICE_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+tmdb:
+  access-token: ${TMDB_ACCESS_TOKEN:}
+  base-url: https://api.themoviedb.org
