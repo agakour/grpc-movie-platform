@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Log in')}"><title>Log in</title></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+
+<main class="container auth-shell">
+    <div class="form-panel">
+        <h1>Welcome back</h1>
+        <p class="panel-lead">Log in to vote on movies and get personalised recommendations.</p>
+
+        <div class="callout error" th:if="${param.error}">
+            Invalid username or password.
+        </div>
+        <div class="callout success" th:if="${registered}">
+            Account created — you can now log in.
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="field">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" autocomplete="username" autofocus required>
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" autocomplete="current-password" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit">Log in</button>
+            </div>
+        </form>
+
+        <p class="foot-note">
+            No account yet? <a th:href="@{/register}">Register</a>.
+        </p>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

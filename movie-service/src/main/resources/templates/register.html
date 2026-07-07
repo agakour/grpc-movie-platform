@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Register')}"><title>Register</title></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+
+<main class="container auth-shell">
+    <div class="form-panel">
+        <h1>Create your account</h1>
+        <p class="panel-lead">One account is all you need to vote on movies and unlock recommendations.</p>
+
+        <form th:action="@{/register}" th:object="${registerForm}" method="post">
+            <div class="field">
+                <label for="username">Username</label>
+                <input type="text" id="username" th:field="*{username}" autocomplete="username" required>
+                <div class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Username error</div>
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <input type="password" id="password" th:field="*{password}" autocomplete="new-password" required>
+                <span class="hint">Use at least 8 characters.</span>
+                <div class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password error</div>
+            </div>
+            <div class="form-error" th:if="${#fields.hasGlobalErrors()}">
+                <span th:each="error : ${#fields.globalErrors()}" th:text="${error}">Global error</span>
+            </div>
+            <div class="form-actions">
+                <button type="submit">Create account</button>
+            </div>
+        </form>
+
+        <p class="foot-note">
+            Already registered? <a th:href="@{/login}">Log in</a>.
+        </p>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
