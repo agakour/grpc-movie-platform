@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Error')}"><title>Error</title></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+
+<main class="container auth-shell">
+    <div class="form-panel">
+        <h1>Something went wrong</h1>
+        <p class="panel-lead">The request could not be completed. You can head back and try again.</p>
+
+        <div class="callout error">
+            <div th:text="${status} + ' — ' + ${error}">Status</div>
+            <p th:if="${message}" th:text="${message}">Message</p>
+        </div>
+
+        <div class="form-actions">
+            <a class="button" th:href="@{/}">Back to the catalog</a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

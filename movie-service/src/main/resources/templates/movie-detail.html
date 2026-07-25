@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/layout :: head(${movie.title()})}"><title>Movie</title></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+
+<main class="container">
+    <div class="callout success" th:if="${voted != null && voted}">Saved: you liked this movie.</div>
+    <div class="callout info" th:if="${voted != null && !voted}">Saved: you disliked this movie.</div>
+
+    <div class="detail-hero">
+        <img class="backdrop" th:if="${backdropUrl != null}" th:src="${backdropUrl}" alt="">
+        <div th:replace="${backdropUrl == null} ? ~{fragments/no-art :: noArt} : ~{}"></div>
+        <div class="hero-shade"></div>
+        <div class="hero-caption">
+            <img class="poster" th:if="${posterUrl != null}" th:src="${posterUrl}" alt="Poster">
+            <div th:replace="${posterUrl == null} ? ~{fragments/no-art :: noArt} : ~{}"></div>
+            <div class="hero-text">
+                <h1 th:text="${movie.title()}">Title</h1>
+                <div class="original-title"
+                     th:if="${movie.originalTitle() != null and !movie.originalTitle().equals(movie.title())}"
+                     th:text="${movie.originalTitle()}">Original</div>
+                <div class="hero-meta">
+                    <span th:if="${movie.releaseYear()}" th:text="${movie.releaseYear()}">2000</span>
+                    <span th:if="${movie.runtimeMinutes()}"> · <span th:text="${movie.runtimeMinutes()} + ' min'"></span></span>
+                    <span th:if="${movie.originalLanguage()}"> · <span th:text="${movie.originalLanguage()}">en</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-layout">
+        <div class="detail-main">
+            <section class="panel">
+                <h2>Overview</h2>
+                <p class="overview" th:text="${movie.overview() ?: 'No overview available.'}">Overview</p>
+            </section>
+
+            <section class="panel" th:if="${!movie.genres().isEmpty()}">
+                <h2>Genres</h2>
+                <div class="chips">
+                    <span class="chip" th:each="genre : ${movie.genres()}" th:text="${genre}">genre</span>
+                </div>
+            </section>
+
+            <section class="panel" th:if="${!movie.keywords().isEmpty()}">
+                <h2>Keywords</h2>
+                <div class="chips">
+                    <span class="chip" th:each="keyword : ${movie.keywords()}" th:text="${keyword}">keyword</span>
+                </div>
+            </section>
+        </div>
+
+        <aside class="detail-side">
+            <section class="panel vote-panel" sec:authorize="isAuthenticated()">
+                <h2>Your rating</h2>
+                <div class="vote-zone">
+                    <form th:action="@{/movies/{id}/vote(id=${movie.id()})}" method="post">
+                        <input type="hidden" name="liked" value="true">
+                        <button type="submit" class="secondary vote-like" aria-pressed="true"
+                                th:aria-pressed="${voteState != null and voteState}">Like</button>
+                    </form>
+                    <form th:action="@{/movies/{id}/vote(id=${movie.id()})}" method="post">
+                        <input type="hidden" name="liked" value="false">
+                        <button type="submit" class="secondary vote-dislike" aria-pressed="true"
+                                th:aria-pressed="${voteState != null and !voteState}">Dislike</button>
+                    </form>
+                </div>
+                <p class="your-vote" th:if="${voteState != null}">
+                    Your vote:
+                    <span class="badge liked" th:if="${voteState}">liked</span>
+                    <span class="badge disliked" th:unless="${voteState}">disliked</span>
+                </p>
+            </section>
+
+            <p class="callout info" sec:authorize="isAnonymous()">
+                <a th:href="@{/login}">Log in</a> to like or dislike movies and get recommendations.
+            </p>
+
+            <section class="panel" th:if="${!movie.directors().isEmpty()}">
+                <h2>Directors</h2>
+                <ul class="people-list">
+                    <li th:each="director : ${movie.directors()}"><span th:text="${director}">Director</span></li>
+                </ul>
+            </section>
+
+            <section class="panel" th:if="${!movie.cast().isEmpty()}">
+                <h2>Cast</h2>
+                <ul class="people-list">
+                    <li th:each="member : ${movie.cast()}"><span th:text="${member}">Cast</span></li>
+                </ul>
+            </section>
+        </aside>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

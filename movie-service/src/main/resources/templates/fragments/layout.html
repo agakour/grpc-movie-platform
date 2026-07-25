@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#0b1119">
+    <title th:text="${title} ?: 'gRPC Movie Platform'">gRPC Movie Platform</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="preconnect" href="https://image.tmdb.org" crossorigin>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="nav" th:fragment="navbar">
+    <div class="nav-inner">
+        <a class="brand" th:href="@{/}">
+            <svg class="mark" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+                <defs>
+                    <linearGradient id="mark-gradient" x1="1" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#f2b45a"/>
+                        <stop offset="1" stop-color="#e0913a"/>
+                    </linearGradient>
+                </defs>
+                <rect width="32" height="32" rx="9" fill="url(#mark-gradient)"/>
+                <path d="M13 10.5 L24 16 L13 21.5 Z" fill="#1d1405"/>
+            </svg>
+            <span>gRPC Movie Platform</span>
+        </a>
+        <nav class="nav-links" aria-label="Main">
+            <a th:href="@{/}">Browse</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/recommendations}">Recommendations</a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/movies}">Movies</a>
+        </nav>
+        <span class="spacer"></span>
+        <div class="nav-actions" sec:authorize="isAnonymous()">
+            <a th:href="@{/login}">Log in</a>
+            <a class="cta" th:href="@{/register}">Register</a>
+        </div>
+        <div class="nav-actions" sec:authorize="isAuthenticated()">
+            <div class="user-chip">
+                <span class="who" sec:authentication="name"></span>
+                <form th:action="@{/logout}" method="post">
+                    <button class="link" type="submit">Log out</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<footer class="attribution" th:fragment="footer">
+    <div>© 2026 <a href="https://github.com/agakour" rel="noopener" target="_blank">agakour</a> · Built with gRPC, Java &amp; Spring</div>
+</footer>
+</body>
+</html>

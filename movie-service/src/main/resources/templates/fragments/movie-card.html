@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+<div class="movie-card" th:fragment="movieCard(card, likedIds, dislikedIds)">
+    <a class="poster-wrap" th:href="@{/movies/{id}(id=${card.id()})}" tabindex="-1" aria-hidden="true">
+        <img class="poster" th:if="${card.posterUrl() != null}" th:src="${card.posterUrl()}" alt=""/>
+        <div th:replace="${card.posterUrl() == null} ? ~{fragments/no-art :: noArt} : ~{}"></div>
+    </a>
+    <div class="card-body">
+        <a class="title" th:href="@{/movies/{id}(id=${card.id()})}" th:text="${card.title()}">Title</a>
+        <div class="meta">
+            <span th:if="${card.releaseYear()}" th:text="${card.releaseYear()}">2000</span>
+            <span th:if="${card.runtimeMinutes()}"> ·
+                <span th:text="${card.runtimeMinutes() + ' min'}">120 min</span>
+            </span>
+        </div>
+        <div class="badges">
+            <span class="badge liked" th:if="${likedIds.contains(card.id())}">liked</span>
+            <span class="badge disliked" th:if="${dislikedIds.contains(card.id())}">disliked</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

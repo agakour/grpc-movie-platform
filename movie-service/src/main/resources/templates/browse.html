@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('gRPC Movie Platform')}"><title>gRPC Movie Platform</title></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+
+<main class="container">
+    <div class="page-header">
+        <div>
+            <h1>Browse the catalog</h1>
+            <p class="lead">Filter by genre, keyword, cast or year — then open a title to read more and cast your vote.</p>
+        </div>
+        <span class="badge" th:if="${movies.totalElements() > 0}">
+            <span th:text="${movies.totalElements()}">0</span>&nbsp;titles
+        </span>
+    </div>
+
+    <form class="filters" th:action="@{/}" method="get">
+        <div>
+            <label for="q">Search title</label>
+            <input type="text" id="q" name="q" placeholder="Type a title…" th:value="${query.q()}">
+        </div>
+        <div>
+            <label for="genre">Genre</label>
+            <select id="genre" name="genre">
+                <option value="">— all —</option>
+                <option th:each="genre : ${genres}"
+                        th:value="${genre}"
+                        th:text="${genre}"
+                        th:selected="${genre.equals(query.genre())}">genre</option>
+            </select>
+        </div>
+        <div>
+            <label for="keyword">Keyword</label>
+            <select id="keyword" name="keyword">
+                <option value="">— all —</option>
+                <option th:each="keyword : ${keywords}"
+                        th:value="${keyword}"
+                        th:text="${keyword}"
+                        th:selected="${keyword.equals(query.keyword())}">keyword</option>
+            </select>
+        </div>
+        <div>
+            <label for="director">Director</label>
+            <input type="text" id="director" name="director" th:value="${query.director()}">
+        </div>
+        <div>
+            <label for="actor">Actor</label>
+            <input type="text" id="actor" name="actor" th:value="${query.actor()}">
+        </div>
+        <div>
+            <label for="year">Year</label>
+            <input type="number" id="year" name="year" min="1888" max="2100" th:value="${query.year()}">
+        </div>
+        <div>
+            <label for="sortBy">Sort by</label>
+            <select id="sortBy" name="sortBy">
+                <option value="releaseYear" th:selected="${query.sortBy() == 'releaseYear'}">release year</option>
+                <option value="title" th:selected="${query.sortBy() == 'title'}">title</option>
+                <option value="runtimeMinutes" th:selected="${query.sortBy() == 'runtimeMinutes'}">runtime</option>
+            </select>
+        </div>
+        <div>
+            <label for="dir">Direction</label>
+            <select id="dir" name="dir">
+                <option value="desc" th:selected="${query.dir() == 'desc'}">desc</option>
+                <option value="asc" th:selected="${query.dir() == 'asc'}">asc</option>
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button type="submit">Filter</button>
+        </div>
+    </form>
+
+    <div class="panel empty-state" th:if="${movies.totalElements() == 0}">
+        <h2>Nothing here yet</h2>
+        <p>No movies match these filters.</p>
+    </div>
+
+    <div class="grid" th:if="${movies.totalElements() > 0}">
+        <th:block th:each="card : ${cards}">
+            <div th:replace="~{fragments/movie-card :: movieCard(${card}, ${likedMovieIds}, ${dislikedMovieIds})}"></div>
+        </th:block>
+    </div>
+
+    <div class="pagination" th:if="${movies.totalPages() > 0}">
+        <a th:if="${movies.page() > 0}" th:href="${prevPageUrl}">← previous</a>
+        <span class="page-of">page <span th:text="${movies.page() + 1}">1</span> of <span th:text="${movies.totalPages()}">1</span></span>
+        <a th:if="${movies.page() + 1 < movies.totalPages()}" th:href="${nextPageUrl}">next →</a>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
