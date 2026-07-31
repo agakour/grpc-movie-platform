@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: recommendation-service
+  main:
+    web-application-type: reactive
+  grpc:
+    server:
+      port: ${RECOMMENDATION_SERVICE_GRPC_PORT:9093}
+
+server:
+  port: ${RECOMMENDATION_SERVICE_PORT:8083}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+tmdb:
+  access-token: ${TMDB_ACCESS_TOKEN:}
+  base-url: https://api.themoviedb.org
