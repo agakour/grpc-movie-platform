@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Recommendations')}"><title>Recommendations</title></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+
+<main class="container">
+    <div class="page-header">
+        <div>
+            <h1>Recommendations for you</h1>
+            <p class="lead">Aggregated and ranked from the movies you liked — the higher the score, the stronger the match.</p>
+        </div>
+    </div>
+
+    <div class="callout error" th:if="${errorMessage}" th:text="${errorMessage}">Error message</div>
+
+    <div class="panel empty-state" th:if="${noLikedMovies}">
+        <h2>No likes yet</h2>
+        <p>
+            Like a few movies first — recommendations are built from your liked movies.
+            <a th:href="@{/}">Start browsing</a>.
+        </p>
+    </div>
+
+    <div class="panel empty-state" th:if="${noRecommendations}">
+        <h2>Nothing to recommend yet</h2>
+        <p>
+            TMDb has no recommendations for the movies you liked so far.
+            Like a few more and check back — <a th:href="@{/}">keep browsing</a>.
+        </p>
+    </div>
+
+    <div class="grid" th:if="${recommendations != null and !recommendations.isEmpty()}">
+        <div class="movie-card" th:each="rec : ${recommendations}">
+            <a class="poster-wrap" th:href="@{/movies/{id}(id=${rec.movieId()})}" tabindex="-1" aria-hidden="true">
+                <img class="poster" th:if="${rec.posterUrl() != null}" th:src="${rec.posterUrl()}" alt="">
+                <div th:replace="${rec.posterUrl() == null} ? ~{fragments/no-art :: noArt} : ~{}"></div>
+            </a>
+            <div class="card-body">
+                <a class="title" th:href="@{/movies/{id}(id=${rec.movieId()})}" th:text="${rec.title()}">Title</a>
+                <div class="meta">
+                    <span th:if="${rec.year() > 0}" th:text="${rec.year()}">2000</span>
+                </div>
+                <div class="badges">
+                    <span class="badge score" th:classappend="${rec.score() >= 70} ? 'score-high' : (${rec.score() >= 40} ? 'score-mid' : 'score-low')">score <span th:text="${rec.score()}">100</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
