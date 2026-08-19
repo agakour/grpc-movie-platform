@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Admin · Movie form')}"><title>Movie form</title></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+
+<main class="container">
+    <div class="form-panel wide">
+        <h1 th:text="${movieId != null} ? 'Edit movie' : 'New movie'">Movie form</h1>
+        <p class="panel-lead">Fill in the title and year, run the TMDb lookup to pick the matching entry, then save.</p>
+
+        <form th:object="${form}"
+              th:action="${movieId != null} ? @{/admin/movies/{id}(id=${movieId})} : @{/admin/movies}"
+              method="post">
+
+            <fieldset class="form-section">
+                <legend>Identity</legend>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="title">Title</label>
+                        <input id="title" type="text" th:field="*{title}" required>
+                        <div class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Error</div>
+                    </div>
+                    <div class="field">
+                        <label for="originalTitle">Original title</label>
+                        <input id="originalTitle" type="text" th:field="*{originalTitle}" required>
+                        <div class="error" th:if="${#fields.hasErrors('originalTitle')}" th:errors="*{originalTitle}">Error</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div th:if="${candidates != null && !candidates.isEmpty()}" class="candidates">
+                        <span class="field-label">TMDb ID — pick the matching result to auto-fill the form</span>
+                        <label th:each="candidate : ${candidates}" class="candidate">
+                            <input type="radio" th:field="*{tmdbId}" th:value="${candidate.id()}">
+                            <img th:if="${candidate.posterPath() != null}"
+                                 th:src="${posterUrls[candidate.id()]}"
+                                 alt="" width="40" height="60">
+                            <span th:replace="${candidate.posterPath() == null} ? ~{fragments/no-art :: noArt} : ~{}"></span>
+                            <span th:text="${candidate.title()}">Title</span>
+                            <span class="muted"
+                                  th:if="${candidateYears[candidate.id()] != null}"
+                                  th:text="'(' + ${candidateYears[candidate.id()]} + ')'">(year)</span>
+                        </label>
+                        <div class="error" th:if="${#fields.hasErrors('tmdbId')}" th:errors="*{tmdbId}">Error</div>
+                    </div>
+                    <div th:unless="${candidates != null && !candidates.isEmpty()}">
+                        <label for="tmdbId">TMDb ID</label>
+                        <input id="tmdbId" type="number" min="1" th:field="*{tmdbId}">
+                        <span class="hint" th:if="${candidates == null && picked == null}">Required. Use “Lookup TMDb” to fill it in automatically.</span>
+                        <span class="hint" th:if="${candidates != null && candidates.isEmpty()}">No TMDb match for that original title — refine it (or add a release year) and look up again, or enter the ID manually.</span>
+                        <div class="error" th:if="${#fields.hasErrors('tmdbId')}" th:errors="*{tmdbId}">Error</div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="form-section">
+                <legend>Details</legend>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="releaseYear">Release year</label>
+                        <input id="releaseYear" type="number" min="1888" max="2100" th:field="*{releaseYear}">
+                        <div class="error" th:if="${#fields.hasErrors('releaseYear')}" th:errors="*{releaseYear}">Error</div>
+                    </div>
+                    <div class="field">
+                        <label for="runtimeMinutes">Runtime (minutes)</label>
+                        <input id="runtimeMinutes" type="number" min="1" max="1000" th:field="*{runtimeMinutes}">
+                        <div class="error" th:if="${#fields.hasErrors('runtimeMinutes')}" th:errors="*{runtimeMinutes}">Error</div>
+                    </div>
+                    <div class="field">
+                        <label for="originalLanguage">Original language</label>
+                        <input id="originalLanguage" type="text" maxlength="2" th:field="*{originalLanguage}">
+                        <span class="hint">Two-letter code, e.g. en.</span>
+                        <div class="error" th:if="${#fields.hasErrors('originalLanguage')}" th:errors="*{originalLanguage}">Error</div>
+                    </div>
+                    <div class="field span-2">
+                        <label for="overview">Overview</label>
+                        <textarea id="overview" th:field="*{overview}"></textarea>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="form-section">
+                <legend>Artwork</legend>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="posterPath">Poster path</label>
+                        <input id="posterPath" type="text" th:field="*{posterPath}">
+                        <span class="hint">TMDB image path, e.g. /abc123.jpg</span>
+                    </div>
+                    <div class="field">
+                        <label for="backdropPath">Backdrop path</label>
+                        <input id="backdropPath" type="text" th:field="*{backdropPath}">
+                        <span class="hint">TMDB image path</span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="form-section">
+                <legend>Credits &amp; tags — one entry per line</legend>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="directors">Directors</label>
+                        <textarea id="directors" th:field="*{directors}"></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="cast">Cast</label>
+                        <textarea id="cast" th:field="*{cast}"></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="genres">Genres</label>
+                        <textarea id="genres" th:field="*{genres}"></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="keywords">Keywords</label>
+                        <textarea id="keywords" th:field="*{keywords}"></textarea>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="form-error" th:if="${#fields.hasGlobalErrors()}">
+                <span th:each="error : ${#fields.globalErrors()}" th:text="${error}">Global error</span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" name="action" value="lookup" class="secondary" formnovalidate>Lookup TMDb</button>
+                <button type="submit" name="action" value="save"
+                        th:text="${movieId != null} ? 'Save changes' : 'Create movie'">Save</button>
+                <span class="spacer"></span>
+                <a class="button secondary" th:href="@{/admin/movies}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script>
+    (function () {
+        'use strict';
+
+        const form = document.querySelector('main form');
+        if (!form) {
+            return;
+        }
+
+        function submitPick() {
+            let action = form.querySelector('input[type="hidden"][name="action"]');
+            if (!action) {
+                action = document.createElement('input');
+                action.type = 'hidden';
+                action.name = 'action';
+                form.appendChild(action);
+            }
+            action.value = 'pick';
+            form.submit();
+        }
+
+        form.querySelectorAll('input[type="radio"][name="tmdbId"]').forEach(function (radio) {
+            radio.addEventListener('change', submitPick);
+            radio.addEventListener('click', function () {
+                if (radio.checked) {
+                    submitPick();
+                }
+            });
+        });
+    })();
+</script>
+</body>
+</html>

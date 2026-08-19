@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Admin · Movies')}"><title>Movies</title></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+
+<main class="container">
+    <div class="page-header">
+        <div>
+            <h1>Catalog management</h1>
+            <p class="lead">Create, edit and remove titles. Every entry needs a TMDb ID — use the lookup on the form to fill it in.</p>
+        </div>
+        <a class="button" th:href="@{/admin/movies/new}">+ New movie</a>
+    </div>
+
+    <div class="callout success" th:if="${saved}">Movie saved.</div>
+    <div class="callout error" th:if="${saveFailed}" th:text="${saveFailed}">Movie save failed.</div>
+    <div class="callout success" th:if="${deleted}">Movie deleted.</div>
+
+    <div class="toolbar">
+        <form class="filters" th:action="@{/admin/movies}" method="get">
+            <div>
+                <label for="q">Search</label>
+                <input type="text" id="q" name="q" placeholder="Title contains…" th:value="${q}">
+            </div>
+            <div class="filter-actions">
+                <button type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="panel empty-state" th:if="${movies.totalElements() == 0}">
+        <h2>No movies found</h2>
+        <p>Nothing matches this search yet.</p>
+    </div>
+
+    <div class="table-wrap" th:if="${movies.totalElements() > 0}">
+        <table class="admin-list">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Year</th>
+                <th class="actions">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="movie : ${movies.content()}">
+                <td class="id" th:text="${movie.id()}">1</td>
+                <td>
+                    <a th:href="@{/movies/{id}(id=${movie.id()})}" th:text="${movie.title()}">Title</a>
+                </td>
+                <td class="year" th:text="${movie.releaseYear()}">2000</td>
+                <td class="actions">
+                    <div class="row-actions">
+                        <a class="link-action" th:href="@{/admin/movies/{id}/edit(id=${movie.id()})}">edit</a>
+                        <form th:action="@{/admin/movies/{id}/delete(id=${movie.id()})}" method="post"
+                              onsubmit="return confirm('Delete this movie?');">
+                            <button class="small danger" type="submit">delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination" th:if="${movies.totalPages() > 0}">
+        <a th:if="${movies.page() > 0}" th:href="${prevPageUrl}">← previous</a>
+        <span class="page-of">page <span th:text="${movies.page() + 1}">1</span> of <span th:text="${movies.totalPages()}">1</span></span>
+        <a th:if="${movies.page() + 1 < movies.totalPages()}" th:href="${nextPageUrl}">next →</a>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
