@@ -1,0 +1,103 @@
+name: grpc-movie-platform-prod
+
+services:
+
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - internal-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: user-service-runtime
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  recommendation-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: recommendation-service-runtime
+    restart: unless-stopped
+    environment:
+      TMDB_ACCESS_TOKEN: ${TMDB_ACCESS_TOKEN}
+    networks:
+      - internal-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8083/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  movie-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: movie-service-runtime
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      USER_SERVICE_GRPC_ADDRESS: static://user-service:9091
+      RECOMMENDATION_SERVICE_GRPC_ADDRESS: static://recommendation-service:9093
+      TMDB_ACCESS_TOKEN: ${TMDB_ACCESS_TOKEN}
+    ports:
+      - "${MOVIE_SERVICE_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      recommendation-service:
+        condition: service_healthy
+    networks:
+      - internal-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+networks:
+  internal-net:
+    name: grpc-movie-platform-prod
+    driver: bridge
+
+volumes:
+  postgres-data:
+    name: grpc-movie-platform-prod-postgres-data

@@ -1,0 +1,10 @@
+.git
+.idea
+.kilo
+.env
+.env.*
+!.env.example
+
+**/target
+docker
+docs
